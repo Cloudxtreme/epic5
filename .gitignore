@@ -1,4 +1,4 @@
-# Repo's
+# Initial transition from CVS
 CVS/
 
 # Object files
@@ -27,7 +27,7 @@ CVS/
 *.x86_64
 *.hex
 
-# Other Crap from autoconf/automake
+# Ignore generated files
 Makefile
 config.cache
 config.log
