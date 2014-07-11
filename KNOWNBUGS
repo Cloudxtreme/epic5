@@ -1,0 +1,604 @@
+EPIC5 Projects, Bugs, and other Errata:
+
+KNOWN ERRATA (eg, bugs, or unresolved requests):
+------------------------------------------------
+* $open() should allow recoding
+* /EXEC should allow recoding
+* <tjh2> I can crash the latest epic quite reliably doing this: @logctl(SET
+  +$logref REWRITE ($strftime(%b %d %X) $0 $1-)); 
+<inittab> i'm seeing something a bit weird with continued lines mostly in urls
++compare http://imgur.com/ktAfesQ to http://imgur.com/QekJQnn 
+<Dr_Gonzo> http://hugmachine.net/s/2o1 :: imgur: the simple image sharer -
++Imgur 
+<inittab> the first one is from a non maximized putty window, it's missing the
++b in "boat" on the second line continuation 
+<inittab> second screenshot is from maximized, with one line continuation and
++you can see the b is actually there 
+
+
+MEDIUM-TERM PROJECTS
+--------------------
+* Need to have a script that implements per-channel FiSH support
+* There needs to be an /on switch_query for wuf/sjhoran
+* What about scrolling back to some point in time?
+* What about a facility to do auto-off-hold-mode ?
+* wuf says that fred!user@machine.domain.com.au should not be
+	*!*user@*.com.au but instead *!*user@*.domain.com.au
+* There should be a fake level for "channel stuff"
+* Curse would like an outbound protocol queue to avoid flooding the server
+* Larne wants syntactic word extraction like $foo{3} or $foo{1,4}
+* Howl wants to be able to have per-window /input and /input_char
+* Howl would like "advanced scrollback" searches, like hit counts
+* I think maybe i should expose a better scrollback interface?
+* Should be able to change LINE value in windows (for howl)
+* Howl would like to be able to replace any line of scrollback via windowctl
+* Kitambi would like to be able to rewrite lines after they've been displayed.
+* Should any commands be #ifdef'd out at compile time, as opposed to just
+  being replaced with error-generating shims?
+
+[I moved the old list to the file "WISHLIST" to keep this file short]
+
+[See http://www.epicsol.org/PROJECTS for things to come in the future]
+[See http://www.epicsol.org/CHANGELOG5 for things that changed in the past]
+
+THE CHANGELOG SINCE THE LAST RELEASE:
+-------------------------------------
+* Patch from twincest to fix build on solaris
+* Don't honor queries for WALLOPS (requested by opers)
+* Conditionalize <ieeefp.h> per twincest's fix.
+* Clear RUBYDOTOH if ruby is found but it isn't usable (rb Zoopee)
+* Rewrite checks for (intmax_t) for systems w/o strtoimax(). (rb JailBird)
+* Define NSIG as _NSIG or 32 if it's not defined (rb JailBird)
+* Broaden what you can specify for the server "proto" field (see UPDATES)
+* Fix figure_out_address() to properly identify a server name
+* This fixes /ignore user@host.com which was lamely broken.
+* Make /window channel output all channels in the window
+* Don't call update_all_status() if /set -status_clock (by Oliver Fromme)
+* Comment out strtol() compat stuff, causing people problems.
+* More graciously handle snprintf() returning -1 (rb twincest)
+* Do not use /usr/include/ep on hpux
+* Mark lastlog items as "dead" and check for them to avoid dangling ptrs
+* Handle (graciously) when /set scroll_lines is > size of the window. (rb CE)
+* Properly handle remove_lastlog_item() for the very last item.
+* Fixes /eval defer window new kill;defer window new;defer window kill_others
+* Add $hookctl(ARGS <recursive> <args>) allows you to replace $* in /on.
+* Add $hookctl(USERINFO <recursive> <info>) allows you to set dynamic info.
+* Don't lamely malloc_strcpy() over non-malloced strings in hookctl.
+* Add $iconvctl() to control iconv stuff. (See UPDATES.)
+* Add $xform(iconv +<iconv id>) functionality. (See UPDATES.)
+* Fix bug where /window number could lead to confused lastlogs
+* Generalize base64 encoding so it doesn't hardcode the base64 string.
+* Add $xform(+FISH64 ...) which does FiSH's base64 encoding.
+* Make a better test for embedded perl support by calling SvTRUE().
+* Fix /bind -defaults so it actually removes all keybindings first. doh.
+* Fix /window double so it actually shows you the current double status.
+* Make the expression error for too many operands output the expression.
+* Rewrite the iconv() configure checks to deal with libiconv's #define's.
+* Rewrite the strtoimax() tests so they don't fail lamely to detect (intmax_t)
+* Rewrite the perl and ruby runtime configure tests so they work right with gcc
+* Fix various warnings revealed by gcc warnings
+* Make a very preliminary attempt to write some fish decoding stuff. Not Ready!
+* Fix for configure to handle perl's non-existance (kreca)
+* Fix wserv4 dependencies so you can do make -j4 on multi-cpu.
+* Rework the ruby checking in configure so it builds on freebsd-7
+* Add CTCP FISH support (this is _not_ fish support!), see UPDATES
+* Make an initial stab at proper support for FiSH's base64 converter.
+* I took the "fish64" entry out of $xform() for now while it's broken.
+* Capture stdout of ruby scripts and send it to an epic window. yay!
+* This means you can do regular old 'puts' in ruby script and it'll Just Work.
+* Finish $xform() for +fish64 and -fish64, verified against actual FiSH code
+* Try to make the perl configure check more robust for non-working perls.
+* Start a project to convert things to use transform_string().
+* Fix show_lastlog() to return the rewritten result (so -mangle works)
+* Actually de-orbit [en|de]code().
+* Create transform_string_dyn, a pleasant api in front of transform_string.
+* Create a bunch of global vars for transform_string to avoid lookups.
+* Add hints to how big destination buffers should be for xforming.
+* Fix transforms by initializing the expander and overhead items.
+* Make various sanity checks for transforms to fix amn.
+* Ensure all the users of transform_string_dyn are prepared to handle NULLs
+* Ensure all the xform encoder/decoders can handle zero dest buffer sizes
+* Add code to configure to fail if OpenSSL is not found.  No turning back!
+* Split the notion of "iv size" and "blocksize" in crypto support
+* This is needed because FiSH does not use an IV, being an ECB cipher
+* It's also needed because the notion that the IV *must* be blocksize is lame.
+* Add notion of "trimmable bytes" to end of crypto message
+* Again, this is for FiSH, because it doesn't trim bytes on last packet.
+* Support for assissting valgrind in helping us find memory leaks (caf)
+* Fix memory leaks found by valgrind (caf)
+* GC function_[en|de]code() and function_sha256 (superceded by $xform())
+* GC unused [en|de]code(), enquote_it, dequote_it, and dequote_buffer().
+* Fix display calcs when adding 1st window to 1st screen
+* This allows you to change 'status.number' for default # of status lines
+* Start tracking timestamps for scrollback items
+* Full generalization of scrollback/scrollforward functions
+* Implement scrollback/forward based on lines
+* Implement scrollback/forward based on regex
+* Begin thinking about implementing scrollback/forward based on time (not done)
+* Windows that are hidden from birth have a fake height of 24 lines
+* This fixes a bug where doing /window double on hold_slider 0 in a 
+  never-visible window caused it to get stuck in an infinite loop.
+* Add new scripts, "help.irc", "history.rb", "locale", and "tabkey.sjh"
+* I need to document these in UPDATE!
+* Add /exec -closeout, to send EOF to the exec'd process
+* Add $dccctl(FD_TO_REFNUM <fd>) to convert $connect() to a refnum for dccctl.
+* Remember $dccctl(GET refnum WRITABLE) detects a connected socket, by rule
+* Change /on 322 handler so output always goes to OTHER, not to the window.
+* Add an /on switch_query, but it's incomplete, so don't use it yet.
+* Rewrite malloc_sprintf() so it can be used by do_hook_internal().
+* Revamp do_hook() so it returns the final value of $*
+* This will allow future use of do_hook() to rewrite text.
+* Don't test for /usr/local/lib/libiconv.a because os x doesn't have it
+* Prototype malloc_vsnprintf().
+* Don't test uninitialized variables, you dummy.
+* Have to be more aggressive using va_copy() for 64-bit sake
+* Add /xeval -n {...} which un-does the ^ operation.
+* Fix the 'ambig' script to use /xeval -n.
+* Fix the command mode support in 'builtins' to use /xeval -n
+* Reorganize open_log(), add support for double quotes around filenames
+* Verify that logfiles are now working as I Hope they would.
+* Make 'global' load ambig and newnick, since those recently came up
+* Change a variable name to avoid conflicts with a global symbol
+* Create a stub function to calculate how long the input line could be.
+* Fix a bug with /who -real (i forgot who reported this, sorry!)
+* Fix the redonkulous spurious errors when using $convert().
+* Add a configure check for strtoimax() being a macro (ugh)
+* Apparently strings in configure are supposed to be [quote]d.
+* Check for strtoimax() separately in inttypes.h and stdint.h
+* This hopefully fixes the build on hpux
+* Add @E<win> as a /msg target so you can /msg a window.
+* Fix lame compile error in wserv() if we need yell().
+* Improve the test for libarchive in configure
+* Fix /bind -default because it whacked the bindings themselves. doh!
+* Normalize the copyright notice on scripts BlackJac wrote, per his request
+* Fix 439 handling for inspircd (rb twincest)
+* Add the ability to /log server all or /log add all for server logs.
+* Change the configure test for perl from AC_TRY_LINK to AC_TRY_RUN
+* Change string insensitive comparisons so "SERVER" doesn't match "SASAFRASS"
+* Bump up the "overhead" bytes for xform()s to multiples of 8 per zlonix
+* Support /log server ALL and /log type server add ALL to log all servers
+* Fix brain-o that I missed -- strnicmp() consumers must use FULL STRINGS!
+* Fix more.  You'd think I was not paying attention or something.
+* Don't permit /xecho /flag because that's just useless
+* Fix two dcc locking bogons that i discovered by accident.
+* Revert the string insensitive comparison changes for now.
+* Use PRIdMAX and PRIuMAX for printing (intmax_t), for hpux, or larne
+* Fix my brokenness of my_stricmp().  Time to go hide under a rock.
+* Fix the bug where the right indicator appeared when it should not.
+* Add the 'logman' script which does per-server, and per-channel logging
+* Handle inspired's BBC 351 numeric, for larne.
+* Fix bug with /encrypt complaining "X is not a multiple of Y!" (rb zlonix)
+* Add a bunch more scripts I've been sitting on that were contributed.
+* Add 'cycle', 'set_color', 'ban', and 'speak.irc' scripts. i need to doc them
+* Create some internal funcs to allow updating a server desc on the fly
+* Allow add_servers() to update server descriptions
+* Allow /server -add to update server descriptions
+* Allow /server -update to update server descriptions
+* Allow plain old /server to update server descriptions
+* Allow $serverctl(READ_FILE filename) to update server descriptions
+* Add $serverctl(UPDATE refnum stuff) to update server descriptions
+* Allow /window server to update server descriptions
+* Add $windowctl(GET x SERVER_STRING) returns last good /window server value
+* Release epic5-1.1.1 (commit 1631) (Prolixity)
+* Fixes so /server <group> doesn't clobber <host> with <group> (rb howl)
+* Add support for /server refnum:<other flags> which I noticed
+* For example, this means, /server 0:type=irc-ssl now works! yay!
+* Add special check for OS X (Zach)
+* Fix configure check for perl so it doesn't segfault.
+* Fix configure check for iconv, so it doesn't bork the freebsd port
+* Iconv support really is mandatory now! I mean it!
+* Fix transform_string_dyn().  How did nobody catch this??
+* Add a function findchar_quoted() like strchr(), but honors \.s
+* Use this in server descriptions to find the unquoted : after a PASS.
+* This means you can \ a : in a password. yay!
+* Nuke the "URLPASS" support.  Let us never speak of this again.
+* Two changes to timer.c from caf.
+* Fix bugs found by --with-warns.
+* Add a check in configure for -fno-strict-aliasing; could be used with -O2?
+* Fix /parsekey reset_line so it sets the cursor to the end (for howl)
+* Add /on unknown_set for howl (see UPDATES)
+* Fix set_input(), which fixes history. yay!
+* When /dcc causes nonblocking connect, tell the user so they know we tried
+* Add 'c' option to $sar() and $msar() (see UPDATES)
+* Revamp substitute_string() so $sar() and $msar() work as intended.
+* Add a NONE_xform const to do null transformations.
+* Release epic5-1.1.2 (commit 1638) (Trencherman)
+* Fix build so it builds on mac os x, with or without macports perl.
+* Fix brain-dead typo with /on unknown_set support
+* Rewrite /bind transpose_characters in response to it being borked.
+* Fix configure support so valgrind can be used (caf)
+* Fix crash when you output to a window while it's being killed (caf)
+* Fix memory leak with initialization of hook stuff (caf)
+* Fix memory leak with realnames when a server is destroyed (caf)
+* Change /bind previous_word and next_word to honor /set word_break
+* Apparently the lastlog output stuff wasn't guarded properly by show_lastlog
+* Refine fix for crash when you output to a window while it's being killed
+* Use the length passed to write_server_ssl(), that's what it's there for (ce)
+* Avoid null derefs with OMATCH/IMATCH/PMATCH in serverctl (ce)
+* Fix /allocdump so it doesn't crash without a filename (ce)
+* Fix for a bug that stopped "/xquote -u" inserting null chars.
+* Fixed $serverctl([gio]match ...) to not return deleted servers.
+* Improve performance in the main select loop.  In practice, MAY require minor script alterations.
+* Save the errno from a failed $dbmctl(OPEN) for $dbmctl(ERROR -1)
+* Add $channelsyncing(#chan server) for tjh.
+* Make $info(o) show "S" if OpenSSL was compiled in -- useful for crypto
+* When starting /dcc nonblocking connect, don't worry the user with noise
+* Display the original /window arglist on any syntax error.
+* Remove ADD_STR_TO_LIST macro (caf)
+* Add "from" window to adjust_context_windows, windows are killed (caf)
+* Fix from_server getting lost in vsyserr (caf)
+* Fix null deref in umode handler (caf)
+* Add %G status expando, to return 005 NETWORK (caf)
+* Friendlier ZNC support changes follow here...
+* Allow multiple servers on same (host,port) with different passwords
+* For now, neutralize adjust_window_refnums() until a proper fix (rb tjh)
+* Caf noticed I fixed the wrong bug. oops!
+* EPIC5-1.1.3 released here (Feculance) (Commit ID: 1656)
+* Add $xform("+LEN" ...) which turns anything into a length (for ciphertext)
+* Fix $xform("-FiSH" ...) for compatability with other implementations.
+* Don't accept EAGAIN as a valid error code for connect (caf)
+* Fix infinite loop bug with /userhost (caf)
+* Fix memory leak with /who in certain error conditions (caf)
+* Rewrite isonbase() so it handles longer nicks correctly (caf)
+* Implement /lastlog -ignore, which shows everything EXCEPT the pattern.
+* Add /xeval -nolog which suppresses logging for that command.
+* Implement $dccctl([SG]ET refnum PACKET_SIZE num) for packet-buffering
+* Implement $dccctl([SG]ET refnum FULL_LINE_BUFFER [01]) for forced line buff
+* Implement $hookctl(CURRENT_IMPLIED_HOOK) for implied on hooks to know context
+* Add "expire timeout" to lastlog entries
+* Create do_expire_lastlog_entries() which wipes expired window output
+* Add functions to "merge" logfiles/channels/output/timers to a new window
+* Remove the scripted COMMAND_MODE feature, which interferes with /window merge
+* Add /xecho -E which causes window output to get away after some seconds
+* Add /window merge which collapses two windows into one and kills the other
+* window->lastlog_size must be maintained for both giver and taker!
+* Try to fix some infinite loops when cleaning up window lastlogs.
+* Add fn name to many panics.
+* Make /on set only throw once if the user types the canonical /set name.
+* Automatically close all $dbmctl() open files on exit.
+* Fix /lastlog -context (but only for the normal case. -reverse comes next)
+* Update_server_from_raw_desc() was missing a clear_serverinfo().
+* Improve error handling for /hostname errors.
+* Add /xdebug no_color which turns off color support at the lowest level.
+* Fix /lastlog -reverse -context, all done now!
+* Don't allow $repeat() or $pad() to request strings > 1MB.
+* Have the malloc-failed panic tell you how many bytes were requested.
+* Add a feature to check for unreleased message_from contexts in main().
+* Fix two missing message_from leaks in server handler.
+* Fix the lastlog trimming, an infinite loop (caf)
+* Increase detail when debugging output contexts (caf)
+* Reformat some code, fix more display context leaks (caf)
+* EPIC5-1.1.4 released here (Adumbration) (Commit ID: 1667)
+* Fix lock-ups when killing windows by refining the safeguard
+* Create slurp_elf_file/string_feof|fgets|fgetc, to front-end ELF files
+* Change /load to use the string front-end functions
+* This allows /load to work on pure strings, and decouples from files
+* Create recode_with_iconv() to convert a string using iconv() (for /load)
+* Add /load -encoding which lets you specify the encoding of the file
+* This means you can load iso-8859-1 encoded files on a utf8 terminal!
+* Fix various warnings from gcc -Wall
+* Add a new /set DEFAULT_SCRIPT_ENCODING -- will be used soon!
+* Call setlocale(LC_ALL, "") at start of main() to get locale info
+* Fix slurp_file() (caf)
+* Fix make installman, man page filename had changed
+* Begin a major project to fix issues suggested by clang (Ancient)
+* Fix xecho as suggested by clang
+* Check retval of set[ug]id() just because it's good style
+* Make sure "MAXPATHLEN" (bsd) is always spelled "PATH_MAX" (posix)
+* Fix while as suggested by clang
+* Re-comment translate_user_input() based on suggestion by ce
+* Move add_wait_prompt() to a new home
+* Fix whoreply() as suggested by clang
+* All of the below were suggested by clang.
+* Fix set_screens_current_window() and search_for().
+* Fix a "use-after-free" when realloc() fails
+* Fix or paper over string-overruns for a malformed globs
+* Fix a memory leak when opening a compressed file fails
+* Fix a corruption of from_server in vsyserr()
+* Check the param to denormalize_string() 
+* Slurp_file shouldn't call stat() or check its retval
+* Denormalize_string() should check its param
+* And so should p_killmsg(), and dishonor kill msg if its malformed.
+* Fix /while, /topic, and $repeat() in case of malformed arguments
+* All of the above were suggested by clang
+* More fixes suggested by clang that I'm too annoyed to list out.
+* Even more fixes suggested by clang (most related to theoretical null derefs)
+* Even more fixes...
+* Rewrite /window move and /window move_to to make clang happy
+* One final batch of updates by clang....
+* Rewrite lastlog moving funcs to use windows ptrs instead of refnums (caf)
+* EPIC5-1.1.5 released here (Gallimaufry) (Commit ID: 1683)
+* Add /QUEUE -RUNONE
+* Caf and jm confirmed that ircu doesn't use 307 for USERIP any more.
+* ignorectl(DELETE) is not silent and it should be.
+* To satisfy fedora packaging rules, accept DESTDIR for 'make install'
+* Many printf() format fixes (caf)
+* Many changes clang suggested
+* Fix "topicbar" script to double quote "s for now.
+* Fixed-skipped windows don't get channels from /window kill (unless no choice)
+* Add $windowctl(REFNUMS_BY_PRIORITY) to give you windows by current-ness
+* Add /lastlog -reignore (ce)
+* Add $logctl(NEW)
+* Add $logctl(LAST_CREATED)
+* EPIC5-1.1.6 released here (Kakorrhaphiophobia) (Commit ID: 1693)
+* Begin a big project to decouple status bar generation from window refresh.
+* Create $status_oneoff() which lets you press a status bar on the fly.
+* Fix configure and the build so it works with ruby 1.8/1.9/2.0
+* Update the help script to work with the new website (credit <fill in here>)
+* Make many changes based on suggestions by clang and scan-build
+* Make the configure checks for ruby support more ruby executable names
+* A few minor changes to the history.rb script for no reason
+* Add /input -- to end arg processing so your prompt can start with hyphen
+* Fix a typo bug that kept the correct status bar from being regen.
+* Fix another issue with /window server that caused status not to be updated
+* Add a VERY TEMPORARY /debuglog command for my use.  Will go away soon!
+* Fix status bar update problems (sigh)
+* Update status bar from set_server_005s, so %G updates right away. (caf)
+* Larnifications for incoming nicknames (caf)
+* Add %{4}S status bar expando, always returns full "itsname"
+* When checking Maildir for /set mail 1, ignore subdirectories (rb zlonix)
+* Change string_fgets() to return the number of bytes read
+* Always check servers at startup, even if user did -S. 
+*   (They might have done /server in their startup)
+* Change file_size() to use normalize_filename().
+* This allows MAILDIR to support ~-expansion (ie, ~/Maildir)
+* The sender can be omitted (such as with "NOTICE AUTH"), so don't check those
+* New xmsglog script from zlonix
+* Fix trimming support for $xform().  Plus, FISH should do trimming. (rb zlonix)
+* Fix maildir support for /set mail 1 (help by zlonix)
+* Update tabkey.ce from fudd
+* Update xmsglog from zlonix
+* Two new scripts, sasl_auth and idlealert from zlonix.
+* EPIC5-1.1.7 released here (Kainotophobia) (Commit ID: 1705)
+* Updated massmode from zlonix.
+* All the stuff below are round 1 utf8 support for input line
+* New file, wcwidth.c, utf8<->unicode conversion, unicode column counting.
+* Revamp /INPUT system to be utf8 aware.  callback 2nd arg is now const.
+* Specifically, save the state of the input line across /INPUTs.
+* -- This is stub code. needs to be completely fleshed out.
+* Reformat keys.c so I can work with it easier
+* Only bytes < 127 can now participate in binds.  >= 128 are SELF_INSERT.
+* I think the keybinding system can grow 'namespaces' which might be cool.
+* The TRANSPOSE_CHARACTERS keybinding has passed away quietly.
+* New keybinding DEBUG_INPUT_LINE to help me
+* Revamp the edit_codepoint() system to work with unicode code points
+* Screen input now collects bytes until it gets valid utf8 code points.
+* Collect all of the input line data structures into Struct InputLine
+* Give each screen it's own inputline with an eye towards stacking them.
+* The ability to 'fake' input in dumb mode has passed away quietly.
+* Completely revamp input.c to work with inputline data structure
+* Change input line so users operate on "logical characters"
+* Inputline data structure maps "logical characters" to bytes in input buffer.
+* It's almost too overwhelming to describe specific details.
+* Basically the input system accepts unicode code points, and stores in utf8.
+* Things like cursor movement, column counting, side scrolling all Just Work.
+* Even things like cut buffering work.
+* HOWEVER -- it seems this stuff doesn't work in GNU screen. can't fix this. :/
+* Internal function strext2() allows me to cut substrings out, for input buf.
+* Fix input_delete_character(), it forgot to call retokenize_input()
+* Fix term_inputline_putchar() so it doesn't mangle 0x9b (valid utf8 char)
+* Fix $curpos(), sort of.  Does this return byte offset or column offset?
+* 	It used to be the same, but now it's not!
+* InputLine.buffer_pos isn't used any more.  Whack that.
+* Test every keybinding, fix the ones that are broken.
+* Fix handling of highlight chars
+* Add "number_of_logical_chars" to input line so we can boundary check eol.
+* Error if you try to /bind a high bit char -- that's illegal now.
+* Test and fix composed characters (for mac os x)
+* Teach the normalize_string, prepare_display, and output_with_count about utf8
+* Since utf8 parsing is "consumptive", some utility funcs changed too
+* Column counting/line wrapping in the display works correctly now.
+* Fix read_color_seq().
+* ... again.
+* Fix screen prompts so they can recurse, and restore previous state!
+* Fix line wrapping bug that zlonix found.
+* Get column counting working for the status bar (rb zlonix)
+* Re-implement /input -noecho
+* Create a utf8 string checker
+* Add "encoding=<stuff>" flag to /server descriptions to act as default.
+* EG, /server host=irc.foo.com:encoding=ISO-8859-1
+* Run every non-utf8 string from the server through iconv using def encoding
+* Extend $chr() to accept U+xxxx strings
+* Add function $unicode() converts input into U+xxxx strings
+* Add recode.c, to hold stuff regarding /ENCODING and encoding xlates
+* New command, /ENCODING, declare encodings for targets. only "console" now.
+* Translate user input via /encoding console setting, defaults to utf8.
+* Translate screen output to /encoding console setting
+* Non-utf8 users now appear as utf8 users to irc!
+* UTF8 users now appear as non-utf8 users to non-utf8 epic users!
+* Automatically recode undeclared non-utf8 scripts using /encoding scripts
+* Add Emojis (unicode 6) to the column counting code (rb Kitambi)
+* Set /ENCODING CONSOLE automatically to nl_langinfo(CODESET) from LC_ALL.
+* If the default codeset is "US-ASCII" then it's changed to ISO-885-1.
+* In translate_user_input() try to detect utf8 typers using non-utf8 encodings
+* Tell user if we're recoding a script at /load time.
+* Fix slurp_elf_file() it was leaving a 0xFF at end of file, confusing /load
+* Don't bind ^T to non-existing TRANSPOSE_CHARACTERS keybinding.
+* Bump MAXPARA from 15 to 20 for RusNet
+* Fix the UTF8 detector for user input
+* Fix cursor left when switching zones to the left.
+* Allow /set word_break to include high bit code points (rb fusion)
+* To work around RusNET, forgive truncated utf8 sequences at the end.
+* Fix /server , so it doesn't null deref.
+* Add /lastlog -this_server and /lastlog -global for zlonix.
+* Fix $windowctl(NEW) by forbidding status updates during window creation.
+* Default /ENCODING CONSOLE to the user's locale, not to utf8.
+* Re-implement /set allow_c1_chars for input line, display prep, and output.
+* Fix diagnostic output of /encoding
+* Comment out some stuff in term.c that isn't being used.
+* Re-implement status repeat-char-fill for utf8. (rb fudd)
+* Fix /xtype -l to be UTF-8 aware. (rb zlonix)
+* When status updates are suppressed, make a note if an attempt is tried
+* When status updates are permitted again, do an update_all_status() if defered
+* Make /set lastlog do a scrollback redraw to "dispose" of extra lines
+* Make /set lastlog refuse to set to a value < twice the biggest window.
+* However, doing /set lastlog 0 WILL delete everything and clear every window.
+* Have configure auto-detect your "local" directory (/usr/local|opt|/usr/pkg)
+* Have configure use the auto-detected local directory.
+* Reformat some parts of server.c
+* Change the current window whenever we're processing server stuff.
+  -- This was withdrawn because it was very unpopular.
+* Don't allow /window lastlog to set the lastlog too low. 
+* Add support for ITALICS (^P) (\020), including ITALIC keybinding.
+* Add support for 256 colors.  I should document all changes but i don't wanna
+* Document all the places where encoding translation should happen.
+* De-harshen some comments I wrote 20 years ago in anger.
+* Fix colors with high bit set. (rb Hellfire)
+* Change ^X so it only supports two hex digits 00-FF
+* Fix QUOTE_CHARACTER (^Q)
+* Lots of internal work to implement back-end of /encoding.
+* Add decide_encoding() to evaluate rules and pick one for non-utf8 stuff.
+* Add serverinfo_matches_servref() internal to decide if (si) works for a serv.
+* Add outbound_recode() internal to translate messages we're sending out
+* Add inbound_recode() internal to translate messages received from irc.
+* Add recode_with_iconv_t() internal function for the above.
+* Rewrite (inbound_recode()) privmsgs, notices, topics, all this good stuff
+* Rewrite (outbound_recode()) msgs, notices.
+* Withdraw the /server -encoding feature.
+* Add /xdebug recode to debug recoding rules.  Help you help me!
+* Review the recode code and leave comments for future improvement
+* Don't allow the user to delete the magic recode rules.
+* Fix $tobase(<base> 0) to always return 0 instead of empty string.
+* Fix $"", caused by accumulator in translate_user_input not being cleaned.
+* Fix bug with /encoding found by zlonix.
+* Make serverinfo_matches_servref() honor 005 NETWORK value.
+* Add /encoding support for 311, 314, 322, 332, and 352 numerics (*gulp*)
+* Leave notes to add support for outbound topic/kick/part/etc.
+* Add /encoding support for CTCPs (reported by zlonix)
+* Fix /encoding support for PARTs (found by zlonix)
+* Add /encoding support for outbound KICKs/TOPICs/etc
+* Create internal rfc1459_any_to_utf8 to preprocess before parse_server().
+* Tokenize recode rule "target" at create time instead of every evaluation
+* This is part of a larger code cleanup for recode.c
+* Remove the per-message handling for /encoding since it's done globally now.
+* Change vsend_to_aserver so it does recoding.
+* This means outbound doesn't honor /set translation any more
+* This requires send_to_server_with_payload() since payloads already recoded
+* Fix typo causing payload not to be recoded properly.
+* Missing a break. d'oh.
+* Outbound messages should not be recoded if they're already utf8.
+* Yes they must be! duh.  Square all this away with zlonix.
+* Fix send_text so it doesn't send non-utf8 text through /on send_msg
+* Finnese invalid_utf8str() so it doesn't truncate partial cp's for non-utf8s
+* Warn if we try to do double-outbound-recoding
+* Be more sensible about handling string lengths in vsend_to_server()s.
+* Add $^*var to 'quote everything' (except letters and digits)
+* When recoding inbound, move server|payload part out of buffer first.
+* Don't double decode the ircname in whoreply.
+* Rewrite strformat() to be utf8 aware.  This fixes $[9]var
+* Rewrite $pad() to be utf8 aware.
+* Allow char-based /set's to hold a utf8 code point (for /set pad_char)
+* Fix typo in check_xdigit() that borked 256 colors
+* Fix $status_oneoff() to repeat with space if status bar is empty string.
+* Don't -1 the line len when passing to prepare_display(); already adjusted!
+* De-confuse ctcp_type and sed_type in the /encrypt stuff
+* Make encryption work again, with encoding (but not with recursive ctcps)
+* Write special handling for (defering) recoding of CTCPs until decrypted
+* Rewrite $left(), $right(), and $mid() to be utf8 aware.
+* Make /FEC utf8 aware.
+* Fix a double recode with outbound ctcps
+* Extend send_text() with a new flag saying if text already recoded
+* Don't double-recode ctcp's!
+* Inbound recoding of CTCPs must happen *before* processing, not afterwards
+* This fixes /encode + /encrypt + /me
+* Convert $strlen() to utf8-aware, many others to follow
+* Add new flag "CTCP_NORECODE" which tells do_ctcp not to recode first.
+* This allows non-encryption ctcps to automatically be recoded.
+* This fixes /me yet again.
+* Create internal cpindex() and rcpindex(), like [r]sindex(), but works on CPs
+* Adjust internal chop() to work on code points. 
+* Make a first pass to choke if /encoding argument is not valid locale.
+* Write some more internal CP based functions in wcwidth.c
+* Rewrite/ensure these functions are UTF8 aware:
+	strlen	chop	index	rindex	indextoword	wordtoindex	maxlen
+* Write a half-finished reimplementation of $fix_width() that is commented out
+* Fix rcpindex() when the search char isn't in the string
+* Fix search_for() which makes $before() and $after() utf8 aware.
+* Eliminate usage of internal sindex() -> strchr(), strpbrk(), or cpindex().
+* Rewrite/ensure these functions are UTF8 aware:
+	strip	split	before	after	curpos
+* At startup, create a (locale_t) that points to "en_US.UTF-8" for ctype funcs
+* Create internal mkupper_l and mklower_l to convert codepoints to upper/lower
+* Rewrite internal upper()/lower() to use mk(upper|lower)_l.
+* This makes $toupper() and $tolower() utf8 aware. yay!  And other stuff!
+* Implement internal utf8_strnicmp and use it for my_str[n]icmp.
+* This means things like case insensitive aliases work for non-english! yay!
+* Rewrite/ensure these functions are UTF8 aware:
+	toupper	tolower
+* Add sanity check to next_code_point() to warn if i do something stupid.
+* Revise next_in_div_list to take CP so $[m]sar() can take arbitrary delims
+* Revise substitute_string to handle case insensitivity as utf8 aware.
+* Rewrite/ensure these functions are UTF8 aware:
+	reverse	rest	pass	sar	msar
+* De-emphasize toupper() and tolower(), which are not utf8 aware
+* Comment out $shiftseg() until I learn more about it (needs utf8)
+* Rewrite/ensure these functions are UTF8 aware:
+	center	tr	chrq	insert
+* Rewrite/ensure these functions are UTF8 aware:
+	substr	rsubstr
+* Fix many warnings suggested by the compiler
+* Zlonix updated idlealert, sasl_auth, xmsglog, and added new_lastlog.
+* I had added contrib/utf8.c and regress/test_xform3 regress/test_xform4.
+* Fix many warnings/bugs suggested by clang's static analyzer
+* Add sanity checking for encodings, so we can warn the user
+* Specifically check the locale encoding for sanity, use ISO-8859-1 as fallback
+* Warn the user if /encoding encoding is unusable -- and don't switch over.
+* Put in references to two wiki pages I need to document
+	http://epicsol.org/encodings_and_locales
+	http://epicsol.org/encoding
+* Server names can contain '*'s. (rb zlonix)
+* Fix /topic when you don't supply a channel (rb zlonix)
+* EPIC5-1.1.8 released here (Atavistic) (Commit ID: 1775)
+* Fix from freebsd to avoid checking yes(1) as ruby executable in configure
+* Create functions to enumerate what should be documented in wiki
+* This is exposed via undocumented $help_topics() function.
+* Explicitly set LC_NUMERIC to "C" because otherwise math parser breaks
+* Reset /window activity when a window becomes current (as in /window notified)
+* Create stub for $encodingctl(), and spec it, but not implemented yet.
+* Create internal time_since_startup() function (for eventual load logging)
+* recode.c needs to include <xlocale.h> because of newlocale(3).
+* Add new "source" flag to recode rules, to tell user where rule came from.
+* Implement $encodingctl().
+* RecodeRule->magic wasn't being set correctly.
+* Output the recode rule refnum for /encoding
+* Rewrite internal fix_string_with(), with new chop_[final_]columns() funcs.
+* Extend $fix_width() to support 'c'enter and 'r'ight justify, and UTF8 aware.
+* EPIC5-1.1.9 released here (Desquamation) (Commit: 1780)
+* Fix compile error in function_help_topics
+* EPIC5-1.1.10 released here (Desquamation) (Commit: 1781)
+* Updated sasl_auth (v1.2) from zlonix 
+* Fix input lines being blank on non-main screens (set output_screen)
+* Fix not being able to chain /INPUT's together (reset input line before callb)
+* DO NOT set the window when handling server (very unpopular)
+  (* Change the current window whenever we're processing server stuff.)
+* Rewrite add_window_to_screen/remove_window_from_rewrite
+* Rewrite recalculate_windows.
+* This fixes screen corruption when creating wins or shrinking your screen.
+* Fix a bug where UPDATE_STATUS could get ignored (introduce FORCE_STATUS)
+* Remove /set translation and all its stuff.
+* Don't unforce the status bar until it's actually been redrawn.
+* Set a window's screen before hiding it on /window new_hide (rb fusion)
+* Fix rogue semicolon.
+* Fix a null deref in creating new window when all other windows are fixed
+* Fix some bugs that clang static analyzer found
+* Fix where /set -continued_line led to strange denormalize behavior (rb Tilt)
+* Add tmux support for /window create, (zlonix)
+* Fix all calls to iconv() so they follow standard (2d arg -> (char **))
+* Revamp do_crypto() to recode messages after decryption.  Somehow missed this
+* Add comments to various functions that I think deserve it.
+* Windows added to screens must have their "my_cols" set!
+* Add support for detecting iso2022-jp for fusion (Japenese non-utf8 encoding)
+* Plaster over two lame clang warnings in if.c so i don't have to look at them.
+* Don't #include "wcwidth.c" from ircaux.c, compile on its own
+* Make next_code_point() self-synchronizing; callers doesn't have to handle err
+* Update for topicbar from zlonix (rename topicbar.purge -> datapurge)
+* Modify next_code_point() to allow re-syncing or error reporting.
+* This fixes a bug where invalid_utf8string was broken (rb zlonix)
+* Adjust the wrapping point for long lines without breaks (rb fudd)
+* Remove /set default_script_encoding (superceded by /encoding scripts)
+* Remove /set high_bit_escape (superceded by /encoding console)
+* When i rewrote recalculate_windows() forgot to call window_check_columns()!
+* $read() will using /encoding scripts to convert non-utf8 strings. (temp!)
+* Fix next_code_point() to skip bytes, not increment them (fusion)
+* Don't permit /set no_control_log to overrule mangling
+* Improve the warning for /set dcc_use_gateway_addr for ipv6 only conns
