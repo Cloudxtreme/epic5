@@ -32,6 +32,7 @@ Makefile
 config.cache
 config.log
 config.status
+my_test
 include/defs.h
 source/Makefile
 source/epic5
