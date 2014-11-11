@@ -3,9 +3,8 @@ EPIC5 Projects, Bugs, and other Errata:
 KNOWN ERRATA (eg, bugs, or unresolved requests):
 ------------------------------------------------
 * $open() should allow recoding
-* /EXEC should allow recoding
-* set_server_userhost() gives a message warning of /set dcc_use_gateway
-	but should really only whine if you have it turned on
+* /DCC should allow recoding
+* Fraction was able to crash by typing invalid stuff into input line.
 
 MEDIUM-TERM PROJECTS
 --------------------
@@ -607,3 +606,6 @@ THE CHANGELOG SINCE THE LAST RELEASE:
 * Get_subarray_elements (ie, /foreach) does NOT honor "type" arg and it should
 * This fixes /foreach -cmds i {....}.  Odd that nobody noticed this...
 * Allow ~'s in nicknames because ircnet permits it.   (rb Harzelien)
+* New sasl_auth script from zlonix
+* Add recoding support (ie, UTF8 support) to send/recv msgs from /exec procs.
+* Don't whine that your irc hostname is invalid until /dcc fails because of it.
